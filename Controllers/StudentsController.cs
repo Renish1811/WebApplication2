@@ -1,105 +1,116 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using WebApplication2.Database;
 using WebApplication2.Models;
 
 namespace WebApplication2.Controllers
 {
     public class StudentsController : Controller
     {
-    public ActionResult Index(string search)
-    {
-        string selectCmd = "SELECT * FROM Students";
-
-        if (!string.IsNullOrWhiteSpace(search))
+        private TestDBContext _testDBContext;
+        public StudentsController(TestDBContext testDBContext)
         {
-            selectCmd += @" WHERE Name LIKE @Search
-                        OR Email LIKE @Search
-                        OR Phone LIKE @Search
-                        OR Course LIKE @Search";
+            _testDBContext = testDBContext;
         }
 
-        var conn = new SqlConnection("Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;");
-        SqlCommand command = new SqlCommand(selectCmd, conn);
-        command.CommandType = System.Data.CommandType.Text;
 
-        if (!string.IsNullOrWhiteSpace(search))
+        public ActionResult Index(string search)
         {
-            command.Parameters.AddWithValue("@Search", "%" + search + "%");
-        }
-        conn.Open();
-        var result = command.ExecuteReader();
+            var students = _testDBContext.Students.ToList();
+            //string selectCmd = "SELECT * FROM Students";
 
-        List<Student> students = new List<Student>();
+            //if (!string.IsNullOrWhiteSpace(search))
+            //{
+            //    selectCmd += @" WHERE Name LIKE @Search
+            //            OR Email LIKE @Search
+            //            OR Phone LIKE @Search
+            //            OR Course LIKE @Search";
+            //}
 
-        while (result.Read())
-            {
-                Student student = new Student();
+            //var conn = new SqlConnection("Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;");
+            //SqlCommand command = new SqlCommand(selectCmd, conn);
+            //command.CommandType = System.Data.CommandType.Text;
 
-            student.ID = Convert.ToInt32(result["ID"]);
-            student.Name = result["Name"]?.ToString() ?? "";
-            student.Email = result["Email"]?.ToString() ?? "";
-            student.Phone = result["Phone"]?.ToString() ?? "";
-                student.Course = result["Course"]?.ToString() ?? "";
+            //if (!string.IsNullOrWhiteSpace(search))
+            //{
+            //    command.Parameters.AddWithValue("@Search", "%" + search + "%");
+            //}
+            //conn.Open();
+            //var result = command.ExecuteReader();
 
-                if (result["EnrollmentDate"] != DBNull.Value)
-                {
-                    student.EnrollmentDate = Convert.ToDateTime(result["EnrollmentDate"]);
-                }
+            //List<Student> students = new List<Student>();
 
-                    students.Add(student);
-            }
+            //while (result.Read())
+            //{
+            //    Student student = new Student();
 
-            conn.Close();
+            //    student.ID = Convert.ToInt32(result["ID"]);
+            //    student.Name = result["Name"]?.ToString() ?? "";
+            //    student.Email = result["Email"]?.ToString() ?? "";
+            //    student.Phone = result["Phone"]?.ToString() ?? "";
+            //    student.Course = result["Course"]?.ToString() ?? "";
 
-            ViewBag.Search = search;
+            //    if (result["EnrollmentDate"] != DBNull.Value)
+            //    {
+            //        student.EnrollmentDate = Convert.ToDateTime(result["EnrollmentDate"]);
+            //    }
+
+            //    students.Add(student);
+            //}
+
+            //conn.Close();
+
+            //ViewBag.Search = search;
 
             return View("Index", students);
-    }
-
-
-    
-    public ActionResult Details(int id)
-    {
-        return View();
-    }
-
- 
-    public ActionResult Create()
-    {
-        return View();
-    }
-
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public ActionResult Create(Student student)
-    {
-
-        if (ModelState.IsValid)
-        {
-            var conn = new SqlConnection("Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;");
-            conn.Open();
-
-            string insertCmd = "INSERT INTO Students(Name, Email, Phone, Course, EnrollmentDate)" +
-                               "VALUES(@Name, @Email, @Phone, @Course, @EnrollmentDate)";
-            // $"VALUES('{student.Name}', '{student.Email}', '{student.Phone}', '{student.Course}', '{ Convert.ToDateTime(student.EnrollmentDate).ToString() }')";
-
-            SqlCommand command = new SqlCommand(insertCmd, conn);
-            command.Parameters.AddWithValue("@Name", student.Name);
-            command.Parameters.AddWithValue("@Email", student.Email);
-            command.Parameters.AddWithValue("@Phone", student.Phone);
-            command.Parameters.AddWithValue("@Course", student.Course);
-            command.Parameters.AddWithValue("@EnrollmentDate", student.EnrollmentDate);
-            command.CommandType = System.Data.CommandType.Text;
-            var result = command.ExecuteNonQuery();
-            conn.Close();
-            return RedirectToAction("Index");
         }
 
 
-        return View(student);
-    }
+
+        public ActionResult Details(int id)
+        {
+            return View();
+        }
+
+
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Student student)
+        {
+
+            if (ModelState.IsValid)
+            {
+                //var conn = new SqlConnection("Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;");
+                //conn.Open();
+
+                //string insertCmd = "INSERT INTO Students(Name, Email, Phone, Course, EnrollmentDate)" +
+                //                   "VALUES(@Name, @Email, @Phone, @Course, @EnrollmentDate)";
+                //// $"VALUES('{student.Name}', '{student.Email}', '{student.Phone}', '{student.Course}', '{ Convert.ToDateTime(student.EnrollmentDate).ToString() }')";
+
+                //SqlCommand command = new SqlCommand(insertCmd, conn);
+                //command.Parameters.AddWithValue("@Name", student.Name);
+                //command.Parameters.AddWithValue("@Email", student.Email);
+                //command.Parameters.AddWithValue("@Phone", student.Phone);
+                //command.Parameters.AddWithValue("@Course", student.Course);
+                //command.Parameters.AddWithValue("@EnrollmentDate", student.EnrollmentDate);
+                //command.CommandType = System.Data.CommandType.Text;
+                //var result = command.ExecuteNonQuery();
+                //conn.Close();
+                _testDBContext.Students.Add(student);
+                _testDBContext.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+
+            return View(student);
+        }
         [HttpGet]
         public IActionResult Search(string searchText)
         {
@@ -132,7 +143,7 @@ namespace WebApplication2.Controllers
                                 Phone = reader["Phone"].ToString() ?? "",
                                 Course = reader["Course"].ToString() ?? "",
                                 EnrollmentDate = reader["EnrollmentDate"] != DBNull.Value
-                                   ? Convert.ToDateTime(reader["EnrollmentDate"]): DateTime.MinValue
+                                   ? Convert.ToDateTime(reader["EnrollmentDate"]) : DateTime.MinValue
                             });
                         }
                     }
@@ -144,64 +155,74 @@ namespace WebApplication2.Controllers
 
 
 
+        //[HttpGet]
+        //// GET: Students/Edit/5
+        //// This GET supports either loading by id from DB, or receiving values via query string
+        //public ActionResult Edit(int id, string name = null, string email = null, string phone = null, string course = null, DateTime? enrollmentDate = null)
+        //{
+        //    // If query string provided student data, use it to pre-populate the edit form (no DB round-trip)
+        //    if (!string.IsNullOrWhiteSpace(name) || !string.IsNullOrWhiteSpace(email) || !string.IsNullOrWhiteSpace(phone) || !string.IsNullOrWhiteSpace(course) || enrollmentDate.HasValue)
+        //    {
+        //        var studentFromQuery = new Student
+        //        {
+        //            ID = id,
+        //            Name = name ?? string.Empty,
+        //            Email = email ?? string.Empty,
+        //            Phone = phone ?? string.Empty,
+        //            Course = course ?? string.Empty,
+        //            EnrollmentDate = enrollmentDate ?? DateTime.MinValue
+        //        };
+
+        //        return View("Edit", studentFromQuery);
+        //    }
+
+        //    // Otherwise load from DB by id
+        //    Student student = new Student();
+
+        //    using (var conn = new SqlConnection(
+        //        "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
+        //    {
+        //        string query = "SELECT * FROM Students WHERE Id = @Id";
+
+        //        using (var command = new SqlCommand(query, conn))
+        //        {
+        //            command.Parameters.AddWithValue("@Id", id);
+
+        //            conn.Open();
+
+        //            using (var result = command.ExecuteReader())
+        //            {
+        //                if (result.Read())
+        //                {
+        //                    student.ID = Convert.ToInt32(result["ID"]);
+        //                    student.Name = result["Name"].ToString() ?? string.Empty;
+        //                    student.Email = result["Email"].ToString() ?? string.Empty;
+        //                    student.Phone = result["Phone"].ToString() ?? string.Empty;
+        //                    student.Course = result["Course"].ToString() ?? string.Empty;
+
+        //                    if (result["EnrollmentDate"] != DBNull.Value)
+        //                    {
+        //                        student.EnrollmentDate = Convert.ToDateTime(result["EnrollmentDate"]);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    return NotFound();
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return View("Edit", student);
+        //}
+
         [HttpGet]
         // GET: Students/Edit/5
         // This GET supports either loading by id from DB, or receiving values via query string
         public ActionResult Edit(int id, string name = null, string email = null, string phone = null, string course = null, DateTime? enrollmentDate = null)
         {
-            // If query string provided student data, use it to pre-populate the edit form (no DB round-trip)
-            if (!string.IsNullOrWhiteSpace(name) || !string.IsNullOrWhiteSpace(email) || !string.IsNullOrWhiteSpace(phone) || !string.IsNullOrWhiteSpace(course) || enrollmentDate.HasValue)
-            {
-                var studentFromQuery = new Student
-                {
-                    ID = id,
-                    Name = name ?? string.Empty,
-                    Email = email ?? string.Empty,
-                    Phone = phone ?? string.Empty,
-                    Course = course ?? string.Empty,
-                    EnrollmentDate = enrollmentDate ?? DateTime.MinValue
-                };
-
-                return View("Edit", studentFromQuery);
-            }
-
-            // Otherwise load from DB by id
-            Student student = new Student();
-
-            using (var conn = new SqlConnection(
-                "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
-            {
-                string query = "SELECT * FROM Students WHERE Id = @Id";
-
-                using (var command = new SqlCommand(query, conn))
-                {
-                    command.Parameters.AddWithValue("@Id", id);
-
-                    conn.Open();
-
-                    using (var result = command.ExecuteReader())
-                    {
-                        if (result.Read())
-                        {
-                            student.ID = Convert.ToInt32(result["ID"]);
-                            student.Name = result["Name"].ToString() ?? string.Empty;
-                            student.Email = result["Email"].ToString() ?? string.Empty;
-                            student.Phone = result["Phone"].ToString() ?? string.Empty;
-                            student.Course = result["Course"].ToString() ?? string.Empty;
-
-                            if (result["EnrollmentDate"] != DBNull.Value)
-                            {
-                                student.EnrollmentDate = Convert.ToDateTime(result["EnrollmentDate"]);
-                            }
-                        }
-                        else
-                        {
-                            return NotFound();
-                        }
-                    }
-                }
-            }
-
+            
+            var student = _testDBContext.Students.FirstOrDefault(s => s.ID == id);
             return View("Edit", student);
         }
 
@@ -215,23 +236,26 @@ namespace WebApplication2.Controllers
                 return View(student);
             }
 
-            using (var conn = new SqlConnection(
-                "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
-            {
-                conn.Open();
-                string updateCmd = "UPDATE Students SET Name=@Name, Email=@Email, Phone=@Phone, Course=@Course, EnrollmentDate=@EnrollmentDate WHERE ID=@ID";
-                using (var cmd = new SqlCommand(updateCmd, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Name", student.Name ?? string.Empty);
-                    cmd.Parameters.AddWithValue("@Email", student.Email ?? string.Empty);
-                    cmd.Parameters.AddWithValue("@Phone", student.Phone ?? string.Empty);
-                    cmd.Parameters.AddWithValue("@Course", student.Course ?? string.Empty);
-                    cmd.Parameters.AddWithValue("@EnrollmentDate", student.EnrollmentDate);
-                    cmd.Parameters.AddWithValue("@ID", student.ID);
+            //using (var conn = new SqlConnection(
+            //    "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
+            //{
+            //    conn.Open();
+            //    string updateCmd = "UPDATE Students SET Name=@Name, Email=@Email, Phone=@Phone, Course=@Course, EnrollmentDate=@EnrollmentDate WHERE ID=@ID";
+            //    using (var cmd = new SqlCommand(updateCmd, conn))
+            //    {
+            //        cmd.Parameters.AddWithValue("@Name", student.Name ?? string.Empty);
+            //        cmd.Parameters.AddWithValue("@Email", student.Email ?? string.Empty);
+            //        cmd.Parameters.AddWithValue("@Phone", student.Phone ?? string.Empty);
+            //        cmd.Parameters.AddWithValue("@Course", student.Course ?? string.Empty);
+            //        cmd.Parameters.AddWithValue("@EnrollmentDate", student.EnrollmentDate);
+            //        cmd.Parameters.AddWithValue("@ID", student.ID);
 
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            //        cmd.ExecuteNonQuery();
+            //    }
+            //}
+
+            _testDBContext.Students.Update(student);
+            _testDBContext.SaveChanges();
 
             return RedirectToAction("Index");
         }
@@ -240,19 +264,22 @@ namespace WebApplication2.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id)
         {
-            using (var conn = new SqlConnection(
-                "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
-            {
-                string query = "DELETE FROM Students WHERE Id = @Id";
+            //using (var conn = new SqlConnection(
+            //    "Server=localhost\\SQLExpress;Database=TestDB;Trusted_Connection=true;TrustServerCertificate=True;"))
+            //{
+            //    string query = "DELETE FROM Students WHERE Id = @Id";
 
-                using (var command = new SqlCommand(query, conn))
-                {
-                    command.Parameters.AddWithValue("@Id", id);
+            //    using (var command = new SqlCommand(query, conn))
+            //    {
+            //        command.Parameters.AddWithValue("@Id", id);
 
-                    conn.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
+            //        conn.Open();
+            //        command.ExecuteNonQuery();
+            //    }
+            //}
+
+            _testDBContext.Students.Remove(_testDBContext.Students.FirstOrDefault(s => s.ID == id));
+            _testDBContext.SaveChanges();
 
             return RedirectToAction("Index");
         }
