@@ -1,0 +1,10 @@
+﻿@model IEnumerable<WebApplication2.Models.Student>
+
+@foreach (var student in Model)
+{
+    <div class="grid-cell">@student.Name</div>
+    <div class="grid-cell">@student.Email</div>
+    <div class="grid-cell">@student.Phone</div>
+    <div class="grid-cell">@student.Course</div>
+    <div class="grid-cell">@student.EnrollmentDate</div>
+}

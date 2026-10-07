@@ -1,0 +1,117 @@
+﻿@using WebApplication2.Controllers
+@model WebApplication2.Models.Student
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<h1> Create Student Enrollment Detail</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-controller="Students" 
+        asp-action="Create" 
+        method="post">
+
+            <div asp-validation-summary="ModelOnly">
+                class="text-danger"
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label">
+                    Student Name
+                </label>
+                <input asp-for="Name"
+                       class="form-control"
+                       placeholder="Enter student name" />
+
+                <span asp-validation-for="Name"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">
+                    Email
+                </label>
+
+                <input asp-for="Email"
+                       type="email"
+                       class="form-control"
+                       placeholder="Enter email" />
+
+                <span asp-validation-for="Email"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label">
+                    Phone
+                </label>
+
+                <input asp-for="Phone"
+                       class="form-control"
+                       placeholder="Enter phone number" />
+
+                <span asp-validation-for="Phone"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Course" class="form-label">
+                    Course
+                </label>
+
+                <input asp-for="Course"
+                       class="form-control"
+                       placeholder="Enter course" />
+
+                <span asp-validation-for="Course"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="EnrollmentDate"
+                       class="form-label">
+                    Enrollment Date
+                </label>
+
+                <input asp-for="EnrollmentDate"
+                       type="date"
+                       class="form-control" />
+
+                <span asp-validation-for="EnrollmentDate"
+                      class="text-danger">
+                </span>
+            </div>
+
+            <button type="submit"
+                    class="btn btn-primary">
+                Save Student
+            </button>
+
+            <a asp-controller="Students"
+               asp-action="Index"
+               class="btn btn-secondary">
+                Back
+            </a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

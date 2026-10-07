@@ -1,0 +1,164 @@
+﻿@model IEnumerable<WebApplication2.Models.Student>
+
+@{
+    ViewData["Title"] = "Student Details";
+}
+
+<style>
+    .search-box {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .search-box input {
+        width: 300px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .student-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 2fr 1.3fr 1.5fr 1.5fr 180px;
+        width: 100%;
+        margin-top: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .grid-header {
+        font-weight: bold;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f2f2f2;
+    }
+
+    .student-row {
+        display: contents;
+    }
+
+    .grid-cell {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+</style>
+
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<h1> Student Enrollment Details</h1>
+<div class="row">
+    <div style="text-align:right;">
+        <a class="btn btn-primary" asp-controller="Students" asp-action="Create">Create Student Enrollment Record</a>
+    </div>
+</div>
+
+<!-- Search Box -->
+<div class="search-box">
+    <input type="text"
+           id="searchText"
+           placeholder="Search student..." />
+</div>
+
+
+<div class="student-grid" id="studentGrid">
+    <div class="grid-header">Name</div> 
+    <div class="grid-header">Email</div> 
+    <div class="grid-header">Phone</div> 
+    <div class="grid-header">Course</div> 
+    <div class="grid-header">EnrollmentDate</div> 
+    <div class="grid-header">Actions</div>
+    
+    @foreach (var student in Model) 
+{
+    <div class="student-row">
+
+        <!-- Name -->
+        <div class="grid-cell">
+            @student.Name
+        </div>
+
+        <!-- Email -->
+        <div class="grid-cell">
+            @student.Email
+        </div>
+
+        <!-- Phone -->
+        <div class="grid-cell">
+            @student.Phone
+        </div>
+
+        <!-- Course -->
+        <div class="grid-cell">
+            @student.Course
+        </div>
+
+        <!-- Enrollment Date -->
+        <div class="grid-cell">
+            @student.EnrollmentDate.ToString("dd/MM/yyyy")
+        </div>
+
+        <!-- Actions -->
+        <div class="grid-cell">
+
+            <a asp-controller="Students"
+               asp-action="Edit"
+               asp-route-id="@student.ID"
+               asp-route-name="@student.Name"
+               asp-route-email="@student.Email"
+               asp-route-phone="@student.Phone"
+               asp-route-course="@student.Course"
+               asp-route-enrollmentDate="@student.EnrollmentDate.ToString("yyyy-MM-dd")"
+               class="btn btn-primary">
+                Edit
+            </a>
+
+            <form asp-controller="Students"
+                  asp-action="Delete"
+                  asp-route-id="@student.ID"
+                  method="post"
+                  style="display:inline;">
+  
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this student?');">
+                    Delete
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+}
+</div>
+
+<script type="text/javascript">
+
+    document.getElementById("searchText").addEventListener("input", function () {
+
+        var searchText = this.value.toLowerCase().trim();
+
+        var rows = document.querySelectorAll(".student-row");
+
+        rows.forEach(function (row) {
+
+            var rowText = row.innerText.toLowerCase();
+
+            if (rowText.includes(searchText)) {
+                row.style.display = "contents";
+            }
+            else {
+                row.style.display = "none";
+            }
+
+        });
+
+    });
+
+</script>
